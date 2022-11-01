@@ -1,0 +1,79 @@
+package com.jca.thedoor.service.impl;
+
+import com.jca.thedoor.dto.UserDto;
+import com.jca.thedoor.entity.mongodb.Role;
+import com.jca.thedoor.entity.mongodb.User;
+import com.jca.thedoor.exception.FieldAlreadyExistsException;
+import com.jca.thedoor.repository.mongodb.RoleRepository;
+import com.jca.thedoor.repository.mongodb.UserRepository;
+import com.jca.thedoor.service.UserService;
+import com.jca.thedoor.util.MessageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+@Service(value = "userService")
+public class UserServiceImpl implements UserDetailsService, UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder bcryptEncoder;
+
+    @Override
+    public User save(UserDto userDto) {
+        if (userRepository.findFirstByUserNameOrEmailOrCellPhoneNumber(userDto.getUserName(),
+                userDto.getEmail(), userDto.getCellPhoneNumber()) != null) {
+            throw new FieldAlreadyExistsException(
+                    MessageUtil.getMessageFieldsAlreadyExists(
+                            new String[]{"Nombre de usuario", "Email", "Número celular"}));
+        }
+        User user = userDto.getUserFromDto();
+        user.setPassword(bcryptEncoder.encode(userDto.getPassword()));
+
+        return userRepository.save(user);
+    }
+
+    public String login(UserDto userDto) {
+        //TODO validar en bd si el usuario coincide con la contraseña
+
+        //Tener en cuenta la decodificación
+        //si valida generar token
+        //ver video 15
+        return "";
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findFirstByUserNameOrEmailOrCellPhoneNumber(username, username, username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }
+        return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(), getAuthority(user));
+    }
+
+    private Set<SimpleGrantedAuthority> getAuthority(User user) {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        Arrays.stream(user.getRoles()).toList().forEach(roleId -> {
+            Optional<Role> res = roleRepository.findById(roleId);
+            if (res != null) {
+                Role role = res.get();
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+            }
+        });
+        return authorities;
+    }
+}
