@@ -1,29 +1,70 @@
 package com.jca.thedoor.entity.mongodb;
 
-import org.springframework.data.annotation.Id;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.List;
+import java.util.Set;
 
 @Document
-public class User {
-    @Id
-    private String id;
+public class User implements UserDetails {
+
+    private @MongoId ObjectId id;
 
     private String fullName;
     private String userName;
     private String password;
     private String email;
-    private String[] roles;
+    private List<String> roles;
     private String cellPhoneNumber;
+    private Set<UserRole> userRoles;
 
     public User() {
         super();
     }
 
-    public String getId() {
+    @Override
+    public Set<UserRole> getAuthorities() {
+
+        return this.userRoles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return userName;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -35,16 +76,8 @@ public class User {
         this.fullName = fullName;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setPassword(String password) {
@@ -59,11 +92,11 @@ public class User {
         this.email = email;
     }
 
-    public String[] getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(String[] roles) {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 
@@ -73,6 +106,14 @@ public class User {
 
     public void setCellPhoneNumber(String cellPhoneNumber) {
         this.cellPhoneNumber = cellPhoneNumber;
+    }
+
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }
 

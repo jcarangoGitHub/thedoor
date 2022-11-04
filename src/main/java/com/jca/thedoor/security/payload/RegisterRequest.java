@@ -2,6 +2,8 @@ package com.jca.thedoor.security.payload;
 
 import com.jca.thedoor.entity.mongodb.User;
 
+import java.util.Arrays;
+
 public class RegisterRequest {
     private String fullName;
     private String userName;
@@ -16,7 +18,7 @@ public class RegisterRequest {
         user.setUserName(userName);
         user.setPassword(password);
         user.setEmail(email);
-        user.setRoles(roles);
+        user.setRoles(Arrays.stream(roles).toList());
         user.setCellPhoneNumber(cellPhoneNumber);
 
         return user;

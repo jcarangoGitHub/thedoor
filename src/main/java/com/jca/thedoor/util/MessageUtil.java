@@ -9,10 +9,10 @@ public class MessageUtil {
 
     public static String getMessageFieldsAlreadyExists(String[] fields) {
         StringBuilder stringBuilder = new StringBuilder(FIELDS_ALREADY_EXISTS);
-        stringBuilder.append("\n");
+        stringBuilder.append(System.getProperty("line.separator"));
         Arrays.stream(fields).toList().forEach(field -> {
             stringBuilder.append(field);
-            stringBuilder.append("\n");
+            stringBuilder.append(System.getProperty("line.separator"));
         });
         return stringBuilder.toString();
     }

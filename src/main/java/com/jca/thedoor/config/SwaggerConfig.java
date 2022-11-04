@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Swagger: librería para la generación de la documentación de la API REST
  * 
- * http://localhost:8080/swagger-ui/ --> HTML
+ * http://localhost:8080/swagger-ui/index.html
  * http://localhost:8080/v2/api-docs -- JSON
  */
 @Configuration // anotacion para todas las clases spring de configuracion
