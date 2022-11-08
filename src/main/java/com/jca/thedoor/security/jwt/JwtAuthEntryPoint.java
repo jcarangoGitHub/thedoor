@@ -2,6 +2,7 @@ package com.jca.thedoor.security.jwt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,11 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
                          HttpServletResponse httpServletResponse,
                          AuthenticationException e) throws IOException, ServletException {
         log.error("Unauthorized error: {}", e.getMessage());
+        if (e instanceof BadCredentialsException) {
+            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                    "Error: Credenciales inválidas");
+            return;
+        }
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
                 "Error: Necesita autenticación para acceder a este recurso");
     }

@@ -16,6 +16,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import javax.servlet.ServletException;
+
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.*;
 
 /**
  * Clase para la configuración de seguridad Spring Security
@@ -24,6 +31,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity // permite a Spring aplicar esta configuracion a la configuraicon de seguridad global
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final ClearSiteDataHeaderWriter.Directive[] SOURCE =
+            {CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS};
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -81,14 +91,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // CORS (Cross-origin resource sharing)
 
         http.cors().and().csrf().disable()//no se tienen cookies, por eso se deshabilita
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
+                .authorizeRequests()
+                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+                //.antMatchers("/logout").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(unauthorizedHandler)
-                .accessDeniedHandler(accessDeniedHandler)
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .accessDeniedHandler(accessDeniedHandler);
+                //.and()//.formLogin().loginPage("/login")
+                //.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+                /*.and()
+                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/api/index").deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true);
+*/
+                /*.and().logout().logoutSuccessUrl("/api/index")
+                .addLogoutHandler(new HeaderWriterLogoutHandler(
+                        new ClearSiteDataHeaderWriter(SOURCE)));*/
+
+                /*.and().logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/api/index")
+                        .clearAuthentication(true)
+                        .invalidateHttpSession(true));*/
 
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 
