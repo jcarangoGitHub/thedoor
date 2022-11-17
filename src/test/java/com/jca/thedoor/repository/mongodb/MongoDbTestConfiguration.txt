@@ -1,0 +1,30 @@
+package com.jca.thedoor.repository.mongodb;
+
+import de.flapdoodle.embed.mongo.config.*;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.process.runtime.Network;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.io.IOException;
+
+@Configuration
+public class MongoDbTestConfiguration {
+
+
+    private static final String IP = "localhost";
+    private static final int PORT = 27017;
+    @Bean
+    public ImmutableMongodConfig embeddedMongoConfiguration() throws IOException {
+        return MongodConfig.builder()
+                //.replication(new Storage(null, "guater-mongo-db", 20))
+                .version(Version.V4_0_2)
+                .isConfigServer(false)
+                .replication(new Storage("guater-mongo-db", null, 0))
+                .net(new Net(IP, PORT, Network.localhostIsIPv6()))
+                .cmdOptions(MongoCmdOptions.builder().syncDelay(10).useNoPrealloc(true)
+                        .useSmallFiles(true).useNoJournal(true).build())
+                .build();
+
+    }
+}

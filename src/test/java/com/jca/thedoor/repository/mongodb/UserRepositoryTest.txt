@@ -1,0 +1,39 @@
+package com.jca.thedoor.repository.mongodb;
+
+import io.jsonwebtoken.lang.Assert;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+
+//@ExtendWith(SpringExtension.class)
+/*@SpringBootTest
+@ContextConfiguration(locations = "/test/resources/test-context.xml")*/
+
+@AutoConfigureMockMvc
+@AutoConfigureDataMongo
+@SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
+//TODO After run this test, mongodb isn't able to connect to data base again
+class UserRepositoryTest {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @DisplayName("******* Smoke test to mongo db *******")
+    @Test
+    @Tag("develop")
+    void dbSmokeTest() {
+        Assert.notNull(userRepository);
+        boolean res = userRepository.findFirstByUserNameExists("norman");
+        System.out.println("findFirstByUserNameExists():" + res);
+        userRepository = null;
+        //Assert.isTrue(true);
+    }
+
+}
