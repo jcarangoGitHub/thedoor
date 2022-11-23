@@ -92,7 +92,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.cors().and().csrf().disable()//no se tienen cookies, por eso se deshabilita
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/user/register").permitAll()
+                .antMatchers("/api/auth/login").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 //.antMatchers("/logout").permitAll()
                 .anyRequest().authenticated()

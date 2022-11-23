@@ -21,14 +21,14 @@ public class HelloController {
     private final Logger log = LoggerFactory.getLogger(HelloController.class);
 
     //https://www.baeldung.com/spring-security-authentication-mongodb
-    @PreAuthorize("hasRole('ROLE_SUPER')")
-    @GetMapping("/hello2")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("/hello")
     public String hello() {
         log.info("Executing hello world method from logger");
         // diferentes niveles de logger:
         // log.warn("Executing hello world method from logger");
         // log.error("Executing hello world method from logger");
-        return "Hola mundo2";
+        return "Hola mundo";
         //https://campus.open-bootcamp.com/cursos/14/leccion/364
 
     }
