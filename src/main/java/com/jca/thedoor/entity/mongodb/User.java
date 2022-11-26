@@ -25,6 +25,13 @@ public class User implements UserDetails {
         super();
     }
 
+    public User(String userName, String email, String cellPhoneNumber) {
+        super();
+        this.userName = userName;
+        this.email = email;
+        this.cellPhoneNumber = cellPhoneNumber;
+    }
+
     @Override
     public Set<UserRole> getAuthorities() {
 

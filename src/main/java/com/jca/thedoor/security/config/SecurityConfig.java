@@ -94,12 +94,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/user/register").permitAll()
                 .antMatchers("/api/auth/login").permitAll()
+                .antMatchers("/logout").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 //.antMatchers("/logout").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-                .accessDeniedHandler(accessDeniedHandler);
+                .accessDeniedHandler(accessDeniedHandler)
+                .and().logout().invalidateHttpSession(true).deleteCookies("JSESSIONID");
                 //.and()//.formLogin().loginPage("/login")
                 //.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
                 /*.and()

@@ -1,4 +1,4 @@
-package com.jca.thedoor.util;
+package com.jca.thedoor.proofOfConcept;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,8 @@ class OperacionesTest {
     //@DisabledIfSystemProperty(named = "os.name", matches = "Windows 11")
     //@EnabledIfEnvironmentVariable(named = "CMDER_SHELL", matches = "cmd")
     //@DisabledIfEnvironmentVariable(named = "CMDER_SHELL", matches = "cmd")
-    @EnabledIf("com.jca.thedoor.util.OperacionesCondicion#mustBeRun")
+    // TODO Create class to control conditions
+    //@EnabledIf("com.jca.thedoor.util.OperacionesCondicion#mustBeRun")
     void verificarSuma() {
         System.out.println(System.getProperty("os.name"));
         System.out.println(System.getProperty("os.arch"));

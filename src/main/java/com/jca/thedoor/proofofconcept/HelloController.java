@@ -1,4 +1,4 @@
-package com.jca.thedoor.controllers;
+package com.jca.thedoor.proofofconcept;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +31,6 @@ public class HelloController {
         return "Hola mundo";
         //https://campus.open-bootcamp.com/cursos/14/leccion/364
 
-    }
-
-    @GetMapping("/index")
-    public String index(HttpSession session) {
-        session.invalidate();
-        return "index";
     }
 
     @PostMapping("/logout")

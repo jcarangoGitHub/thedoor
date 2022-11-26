@@ -1,7 +1,9 @@
 package com.jca.thedoor.controllers;
 
+import com.jca.thedoor.controllers.validators.UserValidation;
 import com.jca.thedoor.entity.mongodb.User;
 import com.jca.thedoor.exception.FieldAlreadyExistsException;
+import com.jca.thedoor.exception.MissingFieldException;
 import com.jca.thedoor.repository.mongodb.UserRepository;
 import com.jca.thedoor.security.payload.RegisterRequest;
 import com.jca.thedoor.util.MessageUtil;
@@ -26,29 +28,11 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterRequest signUpRequest) {
+        //First validate
+        UserValidation validation = new UserValidation(userRepository, signUpRequest);
+        validation.validateAll();
 
-        // Check 1: username
-        if (userRepository.findFirstByUserNameExists(signUpRequest.getUserName())) {
-            throw new FieldAlreadyExistsException(
-                    MessageUtil.getMessageFieldsAlreadyExists(
-                            new String[]{"Nombre de usuario"}));
-        }
-
-        // Check 2: email
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new FieldAlreadyExistsException(
-                    MessageUtil.getMessageFieldsAlreadyExists(
-                            new String[]{"Email"}));
-        }
-
-        // Check 3: cellPhoneNumber
-        if (userRepository.existsByCellPhoneNumber(signUpRequest.getCellPhoneNumber())) {
-            throw new FieldAlreadyExistsException(
-                    MessageUtil.getMessageFieldsAlreadyExists(
-                            new String[]{"Número celular"}));
-        }
-
-        // Create new user's account
+        // Create new user
         signUpRequest.setPassword(encoder.encode(signUpRequest.getPassword()));
         User user = signUpRequest.getUserFromRequest();
         User created = userRepository.save(user);
