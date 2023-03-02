@@ -1,70 +1,94 @@
 package com.jca.thedoor.controllers.validators;
 
-import com.jca.thedoor.exception.FieldAlreadyExistsException;
-import com.jca.thedoor.exception.MissingFieldException;
+import com.jca.thedoor.entity.mongodb.User;
+import com.jca.thedoor.exception.*;
+import com.jca.thedoor.repository.mongodb.RoleRepository;
 import com.jca.thedoor.repository.mongodb.UserRepository;
-import com.jca.thedoor.security.payload.RegisterRequest;
-import com.jca.thedoor.util.ArrayUtil;
-import com.jca.thedoor.util.MessageUtil;
+import org.bson.types.ObjectId;
 import org.junit.platform.commons.util.StringUtils;
-import org.yaml.snakeyaml.util.ArrayUtils;
+
+import java.util.Optional;
 
 public class UserValidation {
+    private RoleRepository _roleRepository;
     private UserRepository _userRepository;
-    private RegisterRequest _signUpRequest;
-    private String _userName;
-    private String _email;
-    private String _cellPhoneNumber;
-    private String _password;
-    private String[] _roles;
+    private User _user;
+    private User _userFound;
 
-
-    public UserValidation(UserRepository userRepository, RegisterRequest signUpRequest) {
+    public UserValidation(User user, RoleRepository roleRepository, UserRepository userRepository) {
+        this._user = user;
+        this._roleRepository = roleRepository;
         this._userRepository = userRepository;
-        this._signUpRequest = signUpRequest;
-
-        _userName = signUpRequest.getUserName();
-        _email = signUpRequest.getEmail();
-        _cellPhoneNumber = signUpRequest.getCellPhoneNumber();
-        _password = signUpRequest.getPassword();
-        _roles = signUpRequest.getRoles();
     }
 
-    public void validateAll() {
-        validateMandatoryFields();
-        validateUserNameExists();
-        validateEmailExists();
-        validateCellPhoneNumberExists();
+    //<editor-fold desc="validate to insert">
+    public void validateToInsert() {
+        validateRoleExists();
     }
 
-    private void validateMandatoryFields() {
-        if (StringUtils.isBlank(_userName) || StringUtils.isBlank(_email) || StringUtils.isBlank(_cellPhoneNumber) ||
-                StringUtils.isBlank(_password) || ArrayUtil.isArrayNullOrEmpty(_signUpRequest.getRoles())) {
-            throw new MissingFieldException("Faltan campos necesarios para registrar el usuario");
+    private void validateRoleExists() {
+        _user.getRoles().forEach(role -> {
+            if (! _roleRepository.existsById(role)) {
+                throw new NotFoundException("No es posible guardar el registro. Rol no existe: " + role);
+            }
+        });
+    }
+
+    //</editor-fold>
+
+    //<editor-fold desc="validate to update">
+    public void validateToUpdate() {
+        validateMandatoryFieldsToUpdate();
+        validateIfIdExists();
+        validatePasswordNotChanged();
+    }
+
+    private void validateMandatoryFieldsToUpdate() {
+        ObjectId id = _user.getId();
+        if (id == null) {
+            throw new BadRequestException("No es posible actualizar el registro. Id: no debe ser nulo");
+        }
+
+        if (!isValidObjectId(id)) {
+            throw new BadRequestException("No es posible actualizar el registro. Id inválido");
         }
     }
 
-    private void validateUserNameExists() {
-        if (_userRepository.findFirstByUserNameExists(_userName)) {
-            throw new FieldAlreadyExistsException(
-                    MessageUtil.getMessageFieldsAlreadyExists(
-                            new String[]{"Nombre de usuario"}));
+    /**
+     * separated by unit test
+     * @param id
+     * @return
+     */
+    private boolean isValidObjectId(ObjectId id) {
+        return ObjectId.isValid(id.toString());
+    }
+
+    private void validateIfIdExists() {
+        Optional<User> res = _userRepository.findById(_user.getId().toString());
+        if (res.isEmpty()) {
+            throw new NotFoundException("Id no encontrado.");
+        }
+
+        _userFound = res.get();
+    }
+
+    private void validatePasswordNotChanged() {
+        if (!_user.getPassword().equals(_userFound.getPassword())) {
+            throw new NotAllowedException("No es posible cambiar la contraseña. " +
+                    "Dirígase a 'restablecer contraseña'");
+        }
+    }
+    //</editor-fold>
+
+    //TODO unit test
+    public static void validateMandatoryFieldsToSearch(User user) {
+        if (!(StringUtils.isNotBlank(user.getUsername()) || StringUtils.isNotBlank(user.getEmail())
+                || StringUtils.isNotBlank(user.getCellPhoneNumber()))) {
+            throw new MissingFieldException("buscar el usuario");
         }
     }
 
-    private void validateEmailExists() {
-        if (_userRepository.existsByEmail(_email)) {
-            throw new FieldAlreadyExistsException(
-                    MessageUtil.getMessageFieldsAlreadyExists(
-                            new String[]{"Email"}));
-        }
-    }
-
-    private void validateCellPhoneNumberExists() {
-        if (_userRepository.existsByCellPhoneNumber(_cellPhoneNumber)) {
-            throw new FieldAlreadyExistsException(
-                    MessageUtil.getMessageFieldsAlreadyExists(
-                            new String[]{"Número celular"}));
-        }
+    public User get_userFound() {
+        return _userFound;
     }
 }

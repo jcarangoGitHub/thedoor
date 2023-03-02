@@ -1,5 +1,6 @@
 package com.jca.thedoor.security.jwt;
 
+import com.jca.thedoor.exception.ServerException;
 import com.jca.thedoor.security.service.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +50,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String jwt;
         try {
-            String jwt = parseJwt(request);
-            if (jwt != null && jwtTokenUtil.validateJwtToken(jwt)) {
+            jwt = parseJwt(request);
+        } catch (Exception e) {
+            logger.error("Error parsing token: {}", e.getMessage());
+            throw new ServerException("Error parsing token:: \\n" + e.getMessage());
+        }
+        if (jwt != null && jwtTokenUtil.isValidJwtToken(jwt)) {
+            try {
                 String username = jwtTokenUtil.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -60,10 +67,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            }catch (Exception e) {
+                logger.error("Error user authentication: {}", e.getMessage());
+                throw new ServerException("Error user authentication: \\n" + e.getMessage());
             }
-        } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
         }
+
 
         filterChain.doFilter(request, response);
     }
@@ -75,7 +84,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
      */
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-
+        System.out.println(headerAuth);
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith(BEARER))
             return headerAuth.substring(BEARER.length());
 

@@ -2,6 +2,7 @@ package com.jca.thedoor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jca.thedoor.TestSecurityConfig;
+import com.jca.thedoor.entity.mongodb.User;
 import com.jca.thedoor.security.jwt.JwtTokenUtil;
 import com.jca.thedoor.security.payload.RegisterRequest;
 import org.junit.Assert;
@@ -20,6 +21,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Arrays;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,31 +39,31 @@ public class AuthControllerTest {
     private JwtTokenUtil jwtTokenUtil;
 
     private static ObjectMapper mapper = new ObjectMapper();
-    static RegisterRequest _userUnreal;
-    static RegisterRequest _userReal;
+    static User _userUnreal;
+    static User _userReal;
 
     @BeforeAll
     static void init() {
-        RegisterRequest userUnreal = new RegisterRequest();
-        userUnreal.setUserName("norman3");
+        User userUnreal = new User();
+        userUnreal.setUsername("norman3");
         userUnreal.setPassword("1312");
         userUnreal.setEmail("email@email.com");
         userUnreal.setCellPhoneNumber("3030202");
-        userUnreal.setRoles(new String[] {""});
+        userUnreal.setRoles(Arrays.stream(new String[] {""}).toList());
 
         _userUnreal = userUnreal;
 
-        RegisterRequest userReal = new RegisterRequest();
-        userReal.setUserName("norman");
-        userReal.setPassword("1312");
-        userReal.setEmail("email@email.com");
-        userReal.setCellPhoneNumber("3030202");
-        userReal.setRoles(new String[] {""});
+        User userReal = new User();
+        userReal.setUsername("norman");
+        userReal.setPassword("1234");
+        userReal.setEmail("norman@email.com");
+        userReal.setCellPhoneNumber("301416194");
+        userReal.setRoles(Arrays.stream(new String[] {""}).toList());
 
         _userReal = userReal;
     }
 
-    @DisplayName("Authenticate throws exception must returns forbidden status")
+    @DisplayName("/api/auth/login Authenticate throws exception must returns forbidden status")
     @Test
     public void loginWhenAuthenticateThrowExceptionMustReturnForbiddenStatus() throws Exception {
         Mockito.when(authManager.authenticate(any())).thenThrow(UsernameNotFoundException.class);

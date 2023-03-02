@@ -16,4 +16,10 @@ public class MessageUtil {
         });
         return stringBuilder.toString();
     }
+
+    public static String getFieldFromDuplicateKeyExceptionMessage(String errorMessage) {
+        final String key = "dup key:";
+        return errorMessage.substring(
+                errorMessage.indexOf(key)).split(",")[0].substring(key.length());
+    }
 }

@@ -1,13 +1,17 @@
 package com.jca.thedoor.security.payload;
 
+import com.jca.thedoor.entity.mongodb.User;
+
 public class JwtResponse {
 
     private String token;
+    private User user;
 
     public JwtResponse() {
     }
-    public JwtResponse(String token) {
+    public JwtResponse(String token, User user) {
         this.token = token;
+        this.user = user;
     }
 
     public String getToken() {
@@ -18,5 +22,12 @@ public class JwtResponse {
         this.token = token;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
 

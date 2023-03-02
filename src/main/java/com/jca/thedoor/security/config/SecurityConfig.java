@@ -19,8 +19,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.List;
 
 import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.*;
 
@@ -65,11 +71,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * Configuracion global de CORS para toda la aplicacion
      */
     /*@Bean
-    CorsConfigurationSource corsConfigurationSource()
-    {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://angular-springboot-*.vercel.app"));
-        //configuration.setAllowedOriginPatterns(List.of("http://localhost:4200", "https://angular-springboot1-beta.vercel.app"));
+        configuration.setAllowedOrigins(List.of("https://localhost:3000", "https://angular-springboot-*.vercel.app"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "https://angular-springboot1-beta.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
         configuration.setAllowedHeaders(List.of("Access-Control-Allow-Origin", "X-Requested-With",
                 "Origin", "Content-Type", "Accept", "Authorization", "application/json"));
@@ -89,19 +94,34 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // Cross-Site Request Forgery CSRF
         // CORS (Cross-origin resource sharing)
+        //TODO separar los links a otro archivo
+        //http.requiresChannel().antMatchers("/api/auth/login").requiresSecure();
+        //http.requiresChannel().antMatchers("/api/user/findByUserName").requiresSecure();
 
         http.cors().and().csrf().disable()//no se tienen cookies, por eso se deshabilita
                 .authorizeRequests()
-                .antMatchers("/api/user/register").permitAll()
                 .antMatchers("/api/auth/login").permitAll()
+                //.antMatchers("/api/user/findByUserName").permitAll()
                 .antMatchers("/logout").permitAll()
+                .antMatchers("/login").permitAll() // we need it to logout
+                .antMatchers("/api/user/register").permitAll()
+                .antMatchers("/api/user/update").permitAll()
+                .antMatchers("/api/user/delete").permitAll()
+                //.antMatchers("/api/user/findByUserName").permitAll()//TODO remove
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 //.antMatchers("/logout").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
                 .accessDeniedHandler(accessDeniedHandler)
-                .and().logout().invalidateHttpSession(true).deleteCookies("JSESSIONID");
+                .and()
+                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
+                /*.logout(logout -> logout.permitAll()
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setHeader("res", "logged out");
+                    response.setStatus(HttpServletResponse.SC_OK);
+                }));*/
+                //.and().logout().invalidateHttpSession(true).deleteCookies("JSESSIONID");
                 //.and()//.formLogin().loginPage("/login")
                 //.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
                 /*.and()
@@ -120,9 +140,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .invalidateHttpSession(true));*/
 
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-
-
-
     }
 
     @Bean

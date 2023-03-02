@@ -27,6 +27,10 @@
 			<version>4.0.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
 		<!-- dependencies for connect to mongodb
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -94,9 +98,15 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+		<!-- https://mvnrepository.com/artifact/net.jodah/expiringmap -->
+		<dependency>
+			<groupId>net.jodah</groupId>
+			<artifactId>expiringmap</artifactId>
+			<version>0.5.10</version>
+		</dependency>
 
 
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>

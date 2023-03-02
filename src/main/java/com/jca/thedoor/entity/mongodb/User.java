@@ -1,23 +1,45 @@
 package com.jca.thedoor.entity.mongodb;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
-@Document
+@Document//(collation = "user")
 public class User implements UserDetails {
 
     private @MongoId ObjectId id;
 
     private String fullName;
-    private String userName;
+
+    @NotNull
+    @NotBlank
+    @Indexed(unique = true)
+    private String username;
+
+    @NotNull
+    @NotBlank
     private String password;
+
+    @NotNull
+    @NotBlank
+    @Email
+    @Indexed(unique = true)
     private String email;
+
+    @NotNull
+    @NotEmpty
     private List<String> roles;
+
+    @Indexed(unique = true)
     private String cellPhoneNumber;
     private Set<UserRole> userRoles;
 
@@ -27,7 +49,7 @@ public class User implements UserDetails {
 
     public User(String userName, String email, String cellPhoneNumber) {
         super();
-        this.userName = userName;
+        this.username = userName;
         this.email = email;
         this.cellPhoneNumber = cellPhoneNumber;
     }
@@ -44,7 +66,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @Override
@@ -83,8 +105,8 @@ public class User implements UserDetails {
         this.fullName = fullName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setPassword(String password) {

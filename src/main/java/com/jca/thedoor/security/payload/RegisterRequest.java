@@ -15,7 +15,7 @@ public class RegisterRequest {
     public User getUserFromRequest() {
         User user = new User();
         user.setFullName(fullName);
-        user.setUserName(userName);
+        user.setUsername(userName);
         user.setPassword(password);
         user.setEmail(email);
         user.setRoles(Arrays.stream(roles).toList());
