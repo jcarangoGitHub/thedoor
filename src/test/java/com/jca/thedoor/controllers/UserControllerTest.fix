@@ -371,7 +371,7 @@ public class UserControllerTest {
     public void updateWhenIdIsNotNullAndValidAndUsernameNullMustReturnStatusBadRequest() throws Exception {
         String usernameNull = "Field error in object 'user' on field 'username': rejected value [null]";
         String temp = _user.getUsername();
-        _user.setId(new ObjectId());
+        _user.set_id(new ObjectId());
         _user.setUsername(null);
         _json = mapper.writeValueAsString(_user);
 
@@ -392,7 +392,7 @@ public class UserControllerTest {
 
         String temp = _user.getPassword();
 
-        _user.setId(new ObjectId());
+        _user.set_id(new ObjectId());
         _user.setPassword(null);
         _json = mapper.writeValueAsString(_user);
 
@@ -409,7 +409,7 @@ public class UserControllerTest {
     @Test
     @Order(18)
     public void updateWhenIdIsNotNullAndIdDoesntExistMustReturnStatusNotFoundAndMsg() throws Exception {
-        _user.setId(new ObjectId());
+        _user.set_id(new ObjectId());
         _json = mapper.writeValueAsString(_user);
 
         MvcResult result = performUpdateMockMvc().andExpect(status().isNotFound()).andReturn();
@@ -460,7 +460,7 @@ public class UserControllerTest {
     @Test
     @Order(16)
     public void updateWhenIdIsNotNullMustReturnStatusOk() throws Exception {
-        _user.setId(new ObjectId());
+        _user.set_id(new ObjectId());
         _json = mapper.writeValueAsString(_user);
 
         MvcResult result = performUpdateMockMvc().andExpect(status().isOk()).andReturn();
@@ -473,10 +473,10 @@ public class UserControllerTest {
     @Test
     @Order(19)
     public void updateWhenIdIsNotNullAndPasswordUpdatedMustReturnStatusNotAllowedAndMsg() throws Exception {
-        _user.setId(new ObjectId());
+        _user.set_id(new ObjectId());
 
-        User u = new User("test2", "m@m.c", "3030201");
-        u.setId(new ObjectId());
+        User u = new User(null, "m@m.c", "3030201");
+        u.set_id(new ObjectId());
         u.setPassword("password_changed");
         u.setRoles(Arrays.stream(new String[] {"ROLE_"}).toList());
 

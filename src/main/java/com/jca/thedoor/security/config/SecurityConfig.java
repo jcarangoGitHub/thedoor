@@ -70,10 +70,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * Configuracion global de CORS para toda la aplicacion
      */
-    /*@Bean
+    @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://localhost:3000", "https://angular-springboot-*.vercel.app"));
+        // configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://angular-springboot-*.vercel.app"));
         configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "https://angular-springboot1-beta.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
         configuration.setAllowedHeaders(List.of("Access-Control-Allow-Origin", "X-Requested-With",
@@ -82,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }*/
+    }
 
     // ========================= OVERRIDE: SOBREESCRIBIR FUNCIONALIDAD SECURITY POR DEFECTO ======
     @Override
@@ -96,48 +96,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // CORS (Cross-origin resource sharing)
         //TODO separar los links a otro archivo
         //http.requiresChannel().antMatchers("/api/auth/login").requiresSecure();
-        //http.requiresChannel().antMatchers("/api/user/findByUserName").requiresSecure();
+        http.requiresChannel().antMatchers("/api/user/findByUserName").requiresSecure();
+        http.requiresChannel().antMatchers("/api/user/update").requiresSecure();
 
-        http.cors().and().csrf().disable()//no se tienen cookies, por eso se deshabilita
-                .authorizeRequests()
+        http
+            .cors().and()
+            .csrf().disable()//no se tienen cookies, por eso se deshabilita
+            .authorizeRequests()
                 .antMatchers("/api/auth/login").permitAll()
-                //.antMatchers("/api/user/findByUserName").permitAll()
                 .antMatchers("/logout").permitAll()
                 .antMatchers("/login").permitAll() // we need it to logout
                 .antMatchers("/api/user/register").permitAll()
-                .antMatchers("/api/user/update").permitAll()
-                .antMatchers("/api/user/delete").permitAll()
-                //.antMatchers("/api/user/findByUserName").permitAll()//TODO remove
+                .antMatchers("/api/user/findByUserName").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/user/update").hasAnyRole("SUPER", "USER")
+                //.antMatchers("/api/user/delete").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
-                //.antMatchers("/logout").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-                .accessDeniedHandler(accessDeniedHandler)
-                .and()
-                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
-                /*.logout(logout -> logout.permitAll()
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setHeader("res", "logged out");
-                    response.setStatus(HttpServletResponse.SC_OK);
-                }));*/
-                //.and().logout().invalidateHttpSession(true).deleteCookies("JSESSIONID");
-                //.and()//.formLogin().loginPage("/login")
-                //.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
-                /*.and()
-                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/api/index").deleteCookies("JSESSIONID")
-                .invalidateHttpSession(true);
-*/
-                /*.and().logout().logoutSuccessUrl("/api/index")
-                .addLogoutHandler(new HeaderWriterLogoutHandler(
-                        new ClearSiteDataHeaderWriter(SOURCE)));*/
-
-                /*.and().logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/api/index")
-                        .clearAuthentication(true)
-                        .invalidateHttpSession(true));*/
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+            .accessDeniedHandler(accessDeniedHandler)
+            .and()
+            .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
 
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }

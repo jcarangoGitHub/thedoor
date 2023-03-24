@@ -49,7 +49,7 @@ public class AuthController {
         // UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findFirstByUserNameOrEmailOrCellPhoneNumber(loginRequest.getUsername(),
                 loginRequest.getUsername(), loginRequest.getUsername());
-
+        user.setId(user.get_id().toString()); //TODO consider move it to a service class
         return ResponseEntity.ok(new JwtResponse(jwt, user));
     }
 

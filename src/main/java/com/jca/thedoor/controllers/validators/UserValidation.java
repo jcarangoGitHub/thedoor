@@ -27,11 +27,12 @@ public class UserValidation {
     }
 
     private void validateRoleExists() {
-        _user.getRoles().forEach(role -> {
+        //TODO fix model authenticate
+        /*_user.getRoles().forEach(role -> {
             if (! _roleRepository.existsById(role)) {
                 throw new NotFoundException("No es posible guardar el registro. Rol no existe: " + role);
             }
-        });
+        });*/
     }
 
     //</editor-fold>
@@ -44,7 +45,7 @@ public class UserValidation {
     }
 
     private void validateMandatoryFieldsToUpdate() {
-        ObjectId id = _user.getId();
+        ObjectId id = new ObjectId(_user.getId());
         if (id == null) {
             throw new BadRequestException("No es posible actualizar el registro. Id: no debe ser nulo");
         }
@@ -64,7 +65,7 @@ public class UserValidation {
     }
 
     private void validateIfIdExists() {
-        Optional<User> res = _userRepository.findById(_user.getId().toString());
+        Optional<User> res = _userRepository.findById(_user.getId());
         if (res.isEmpty()) {
             throw new NotFoundException("Id no encontrado.");
         }
@@ -73,17 +74,18 @@ public class UserValidation {
     }
 
     private void validatePasswordNotChanged() {
-        if (!_user.getPassword().equals(_userFound.getPassword())) {
+        //TODO fix model authenticate
+        /*if (_user.getPassword() != null && _userFound.getPassword() != null &&
+                !_user.getPassword().equals(_userFound.getPassword())) {
             throw new NotAllowedException("No es posible cambiar la contraseña. " +
                     "Dirígase a 'restablecer contraseña'");
-        }
+        }*/
     }
     //</editor-fold>
 
     //TODO unit test
     public static void validateMandatoryFieldsToSearch(User user) {
-        if (!(StringUtils.isNotBlank(user.getUsername()) || StringUtils.isNotBlank(user.getEmail())
-                || StringUtils.isNotBlank(user.getCellPhoneNumber()))) {
+        if (!(StringUtils.isNotBlank(user.getEmail()) || StringUtils.isNotBlank(user.getCellPhoneNumber()))) {
             throw new MissingFieldException("buscar el usuario");
         }
     }

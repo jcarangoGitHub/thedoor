@@ -1,10 +1,11 @@
 package com.jca.thedoor.security.service;
 
+import com.jca.thedoor.entity.mongodb.Authentication;
 import com.jca.thedoor.entity.mongodb.Role;
 import com.jca.thedoor.entity.mongodb.User;
 import com.jca.thedoor.entity.mongodb.UserRole;
 import com.jca.thedoor.repository.mongodb.RoleRepository;
-import com.jca.thedoor.repository.mongodb.UserRepository;
+import com.jca.thedoor.repository.mongodb.AuthenticationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,7 +27,7 @@ import java.util.*;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private AuthenticationRepository authenticationRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -34,15 +35,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findFirstByUserNameOrEmailOrCellPhoneNumber(username, username, username);
+        //TODO change for authentica
+        Authentication authentication = authenticationRepository.findByUsername(username);
 
         //TODO exception
-        if (user == null) {
+        if (authentication == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
 
         Set<UserRole> userRoles = new HashSet<>();
-        user.getRoles().forEach(rol -> {
+        authentication.getRoles().forEach(rol -> {
             Optional<Role> res = roleRepository.findById(rol);
             if (res.isPresent()) {
                 Role role = res.get();
@@ -52,15 +54,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
 
         });
-        user.setUserRoles(userRoles);
+        authentication.setUserRoles(userRoles);
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
-                user.getPassword(), getAuthority(user));
+        return new org.springframework.security.core.userdetails.User(authentication.getUsername(),
+                authentication.getPassword(), getAuthority(authentication));
     }
 
-    private Set<GrantedAuthority> getAuthority(User user) {
+    private Set<GrantedAuthority> getAuthority(Authentication authentication) {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        user.getAuthorities()
+        authentication.getAuthorities()
             .forEach(role -> {
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole().getName()));
             });

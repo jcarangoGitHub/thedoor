@@ -1,6 +1,7 @@
 package com.jca.thedoor.security.payload;
 
 import com.jca.thedoor.entity.mongodb.User;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -12,7 +13,9 @@ public class RegisterRequest {
     private String[] roles;
     private String cellPhoneNumber;
 
-    public User getUserFromRequest() {
+    private String tokenExchange;
+
+    /*public User getUserFromRequest() {
         User user = new User();
         user.setFullName(fullName);
         user.setUsername(userName);
@@ -20,9 +23,10 @@ public class RegisterRequest {
         user.setEmail(email);
         user.setRoles(Arrays.stream(roles).toList());
         user.setCellPhoneNumber(cellPhoneNumber);
+        user.setTokenExchange(tokenExchange);
 
         return user;
-    }
+    }*/
 
     public String getFullName() {
         return fullName;
@@ -70,5 +74,13 @@ public class RegisterRequest {
 
     public void setCellPhoneNumber(String cellPhoneNumber) {
         this.cellPhoneNumber = cellPhoneNumber;
+    }
+
+    public String getTokenExchange() {
+        return tokenExchange;
+    }
+
+    public void setTokenExchange(String tokenExchange) {
+        this.tokenExchange = tokenExchange;
     }
 }

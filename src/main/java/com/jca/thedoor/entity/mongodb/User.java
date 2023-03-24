@@ -14,20 +14,13 @@ import java.util.List;
 import java.util.Set;
 
 @Document//(collation = "user")
-public class User implements UserDetails {
+public class User {
 
-    private @MongoId ObjectId id;
+    private @MongoId ObjectId _id;
+
+    private String id;
 
     private String fullName;
-
-    @NotNull
-    @NotBlank
-    @Indexed(unique = true)
-    private String username;
-
-    @NotNull
-    @NotBlank
-    private String password;
 
     @NotNull
     @NotBlank
@@ -35,65 +28,37 @@ public class User implements UserDetails {
     @Indexed(unique = true)
     private String email;
 
-    @NotNull
-    @NotEmpty
-    private List<String> roles;
-
     @Indexed(unique = true)
     private String cellPhoneNumber;
     private Set<UserRole> userRoles;
+
+    private String tokenExchange;
 
     public User() {
         super();
     }
 
-    public User(String userName, String email, String cellPhoneNumber) {
+    public User(ObjectId _id, String email, String cellPhoneNumber) {
         super();
-        this.username = userName;
+        this._id = _id;
+        this.id = _id.toString();
         this.email = email;
         this.cellPhoneNumber = cellPhoneNumber;
     }
 
-    @Override
-    public Set<UserRole> getAuthorities() {
-
-        return this.userRoles;
+    public ObjectId get_id() {
+        return _id;
     }
 
-    public String getPassword() {
-        return password;
+    public void set_id(ObjectId _id) {
+        this._id = _id;
     }
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
-
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -105,28 +70,12 @@ public class User implements UserDetails {
         this.fullName = fullName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
     }
 
     public String getCellPhoneNumber() {
@@ -143,6 +92,14 @@ public class User implements UserDetails {
 
     public void setUserRoles(Set<UserRole> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public String getTokenExchange() {
+        return tokenExchange;
+    }
+
+    public void setTokenExchange(String tokenExchange) {
+        this.tokenExchange = tokenExchange;
     }
 }
 
