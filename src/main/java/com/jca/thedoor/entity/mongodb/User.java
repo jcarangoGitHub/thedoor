@@ -32,6 +32,8 @@ public class User {
     private String cellPhoneNumber;
     private Set<UserRole> userRoles;
 
+    private String codCountry;
+
     private String tokenExchange;
 
     public User() {
@@ -92,6 +94,14 @@ public class User {
 
     public void setUserRoles(Set<UserRole> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public String getCodCountry() {
+        return codCountry;
+    }
+
+    public void setCodCountry(String codCountry) {
+        this.codCountry = codCountry;
     }
 
     public String getTokenExchange() {
