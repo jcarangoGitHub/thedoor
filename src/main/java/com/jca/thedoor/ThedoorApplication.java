@@ -11,29 +11,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 @EnableMongoRepositories
 public class ThedoorApplication {
-
-	/*@Autowired
-	static UserRepository userRepository;*/
-
 	public static void main(String[] args) {
 		SpringApplication.run(ThedoorApplication.class, args);
-		//UserImpl impl = new UserImpl(userRepository);
-	}
-
-
-
-}
-
-class UserImpl {
-
-	public UserImpl(UserRepository userRepository) {
-		saveUser(userRepository);
-	}
-
-	void saveUser(UserRepository userRepository) {
-
-		/*userRepository.save(new User("JUAN ARANGO", "jarango",
-				"1312", "juancamiloarango@gmail.com", "admin",
-				"346456220"));*/
 	}
 }
