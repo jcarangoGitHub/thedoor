@@ -71,7 +71,7 @@ public class ExchangeRate {
     }
 
     public String getLocalDate() {
-        return LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).toString();
+        return localDate;
     }
 
     public void setLocalDate(String localDate) {
