@@ -16,9 +16,9 @@ public class ExchangerController {
         this.exchangerService = exchangerService;
     }
 
-    @PostMapping("/getRatesByDate")
-    public ResponseEntity<List<ExchangeRate>> getRatesByDate(@RequestBody String token) {
-        return null;
+    @PostMapping("/getRatesLastDays")
+    public ResponseEntity<List<ExchangeRate>> getRatesLastDays(@RequestBody String token) {
+        return this.exchangerService.getRatesLastDays(token);
     }
 
     @PostMapping("/getCurrentRates")

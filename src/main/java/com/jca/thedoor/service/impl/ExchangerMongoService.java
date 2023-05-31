@@ -13,16 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.UnexpectedTypeException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +31,13 @@ public class ExchangerMongoService implements ExchangerService {
     @Autowired
     private ExchangerRepository exchangerRepository;
     private final Logger log = LoggerFactory.getLogger(ExchangerController.class);
+    private final static int _colombiaGMT = -5;
+    private final static int _lastDays = 7;
 
     @Value("${app.openexchangerates.url.latest}")
     private String urlLatest;
+    @Value("${app.oenexchangerates.url.historical}")
+    private String urlHistorical;
 
     @Override
     public ResponseEntity<ExchangeRate> getCurrentRates(String token) {
@@ -46,10 +50,10 @@ public class ExchangerMongoService implements ExchangerService {
                 Duration duration = Duration.between(resultLocalTime, nowLocal);
                 long minutesDifference = duration.toMinutes();
 
-                return minutesDifference > 20 ? getExchangeRateAndSaveIt(token, nowLocal) : ResponseEntity.ok(result.get());
+                return minutesDifference > 20 ? getExchangeRateAndSaveIt(urlLatest, new String[]{token}) : ResponseEntity.ok(result.get());//TODO back to 60
             }
 
-            return getExchangeRateAndSaveIt(token, nowLocal);
+            return getExchangeRateAndSaveIt(urlLatest, new String[]{token});
 
         } catch (ConstraintViolationException e) {
             throw new BadRequestException(e.getMessage());
@@ -58,14 +62,23 @@ public class ExchangerMongoService implements ExchangerService {
         }
     }
 
-    private ResponseEntity<ExchangeRate> getExchangeRateAndSaveIt(String token, LocalDateTime nowLocal) {
+    private ResponseEntity<ExchangeRate> getExchangeRateAndSaveIt(String url, String[] params) {
         RestTemplate restTemplate = new RestTemplate();
-        StringBuilder apiUrlBuilder = new StringBuilder(urlLatest);
-        apiUrlBuilder.append(token);
+        int paramsLength = params.length;
+        if (paramsLength > 0) {
+            String strCounter;
+            for (int i=0; i<paramsLength; i++) {
+                strCounter = "{"+String.valueOf(i)+"}";
+                if (url.indexOf(strCounter) != -1) {
+                    url = url.replace(strCounter, params[i]);
+                }
+            }
+        }
+        StringBuilder apiUrlBuilder = new StringBuilder(url);
         String apiUrl = apiUrlBuilder.toString();
         ResponseEntity<ExchangeRate> response = restTemplate.getForEntity(apiUrl, ExchangeRate.class);
         ExchangeRate exchangeRate = response.getBody();
-        exchangeRate.setLocalDate(nowLocal.toString());
+        exchangeRate.setLocalDate(getGMTAdjustedByHours(exchangeRate.getTimestamp(), _colombiaGMT));
         try {
             ExchangeRate created = exchangerRepository.save(exchangeRate);
             return ResponseEntity.ok(created);
@@ -75,12 +88,46 @@ public class ExchangerMongoService implements ExchangerService {
         }
     }
 
+    private Instant getGMTAdjustedByHours(Instant timestamp, int hours) {
+        ZoneOffset offset = ZoneOffset.ofHours(hours);
+
+        return timestamp.atOffset(offset).toInstant();
+    }
+
     @Override
-    public List<ExchangeRate> getRatesByDate(String token) {
-        Pageable pageable = PageRequest.of(0, 1);
-        //exchangerRepository.findLastOfTheDay()
-        // TODO form today, how get the first and last minute of the day
-        //TODO from today query for each day. Either find add it to return list. Else call openexchange api and save it
-        return null;
+    public ResponseEntity<List<ExchangeRate>> getRatesLastDays(String token) {
+        LocalDate now = LocalDate.now();
+        LocalDate past;
+        LocalDateTime startDateTime, endDateTime;
+        List<ExchangeRate> response = new ArrayList<>();
+
+        for (int i=1; i <= _lastDays; i++) {
+            past = now.minusDays(i);
+            startDateTime = LocalDateTime.of(past, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(past, LocalTime.MAX);
+
+            // Convert the dates to milliseconds
+            long startDate = startDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+            long endDate = endDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+
+            try {
+                Optional<ExchangeRate> result = exchangerRepository.findFirstByTimestampBetweenOrderByTimestampDesc(Instant.ofEpochMilli(startDate),
+                        Instant.ofEpochMilli(endDate));
+                if (result.isPresent()) {
+                    response.add(result.get());
+                } else {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String pastFormated = past.format(formatter);
+                    ResponseEntity<ExchangeRate> responseEntity = getExchangeRateAndSaveIt(urlHistorical, new String[]{pastFormated, token});
+                    if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                        response.add(responseEntity.getBody());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -7,8 +7,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Map;
 
 @Document("exchange_rates")
@@ -22,7 +20,7 @@ public class ExchangeRate {
 
     private String date;
 
-    private String localDate;
+    private Instant localDate;
 
     private String base;
 
@@ -70,11 +68,11 @@ public class ExchangeRate {
         this.date = date;
     }
 
-    public String getLocalDate() {
+    public Instant getLocalDate() {
         return localDate;
     }
 
-    public void setLocalDate(String localDate) {
+    public void setLocalDate(Instant localDate) {
         this.localDate = localDate;
     }
 
