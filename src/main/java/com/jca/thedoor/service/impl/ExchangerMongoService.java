@@ -22,6 +22,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.UnexpectedTypeException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class ExchangerMongoService implements ExchangerService {
                 Duration duration = Duration.between(resultLocalTime, nowLocal);
                 long minutesDifference = duration.toMinutes();
 
-                return minutesDifference > 20 ? getExchangeRateAndSaveIt(urlLatest, new String[]{token}) : ResponseEntity.ok(result.get());//TODO back to 60
+                return minutesDifference > 60 ? getExchangeRateAndSaveIt(urlLatest, new String[]{token}) : ResponseEntity.ok(result.get());
             }
 
             return getExchangeRateAndSaveIt(urlLatest, new String[]{token});
@@ -87,12 +88,12 @@ public class ExchangerMongoService implements ExchangerService {
             return ResponseEntity.ok(exchangeRate);
         }
     }
-
     private Instant getGMTAdjustedByHours(Instant timestamp, int hours) {
         ZoneOffset offset = ZoneOffset.ofHours(hours);
-
-        return timestamp.atOffset(offset).toInstant();
+        OffsetDateTime  adjustedDateTime = OffsetDateTime.ofInstant(timestamp, offset).plusHours(hours);
+        return adjustedDateTime.toInstant();
     }
+
 
     @Override
     public ResponseEntity<List<ExchangeRate>> getRatesLastDays(String token) {
