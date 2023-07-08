@@ -100,6 +100,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.requiresChannel().antMatchers("/api/user/update").requiresSecure();
         http.requiresChannel().antMatchers("/api/exchanger/getCurrentRates").requiresSecure();
         http.requiresChannel().antMatchers("/api/exchanger/getRatesLastDays").requiresSecure();
+        http.requiresChannel().antMatchers("/api/notebook/notebook").requiresSecure();
+        http.requiresChannel().antMatchers("/api/notebook/findAllByUser").requiresSecure();
 
         http
             .cors().and()
@@ -113,6 +115,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/update").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/exchanger/getCurrentRates").hasAnyRole("SUPER")
                 .antMatchers("/api/exchanger/getRatesLastDays").hasAnyRole("SUPER")
+                .antMatchers("/api/notebook/notebook").hasAnyRole("SUPER")
+                .antMatchers("/api/notebook/findAllByUser").hasAnyRole("SUPER", "USER")
                 //.antMatchers("/api/user/delete").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .anyRequest().authenticated()

@@ -9,7 +9,7 @@ import org.junit.platform.commons.util.StringUtils;
 
 import java.util.Optional;
 
-public class UserValidation {
+public class UserValidation extends Validator {
     private RoleRepository _roleRepository;
     private UserRepository _userRepository;
     private User _user;
@@ -44,24 +44,19 @@ public class UserValidation {
         validatePasswordNotChanged();
     }
 
+    public void validateIdUserExists() {
+        validateIfIdExists();
+    }
+
     private void validateMandatoryFieldsToUpdate() {
         ObjectId id = new ObjectId(_user.getId());
         if (id == null) {
-            throw new BadRequestException("No es posible actualizar el registro. Id: no debe ser nulo");
+            throw new BadRequestException("user.id must not be null");
         }
 
         if (!isValidObjectId(id)) {
-            throw new BadRequestException("No es posible actualizar el registro. Id inválido");
+            throw new BadRequestException("user.id must be a valid Mongodb ObjectId");
         }
-    }
-
-    /**
-     * separated by unit test
-     * @param id
-     * @return
-     */
-    private boolean isValidObjectId(ObjectId id) {
-        return ObjectId.isValid(id.toString());
     }
 
     private void validateIfIdExists() {
