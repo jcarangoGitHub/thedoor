@@ -3,7 +3,7 @@ package com.jca.thedoor.payload;
 public class DeleteNotebooksRequest {
     private String[] names;
     private String user;
-    
+
     public String[] getNames() {
         return names;
     }

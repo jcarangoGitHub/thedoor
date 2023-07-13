@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Document("notebook")
+@Document("notebooks")
 public class Notebook {
     @MongoId
     private ObjectId _id;
