@@ -9,4 +9,6 @@ public interface NotebookService {
     ResponseEntity<Notebook> createNotebook(Notebook notebook);
 
     ResponseEntity<List<Notebook>> findAllNotebooksByUser(String idUser);
+
+    void deleteNotebooksByNameAndUser(String[] names, String user);
 }

@@ -9,4 +9,6 @@ public interface NotebookRepository extends MongoRepository<Notebook, String> {
     boolean existsByNameAndUser(String name, String user);
 
     List<Notebook> findAllByUser(String user);
+
+    void deleteAllByNameAndUser(String name, String user);
 }

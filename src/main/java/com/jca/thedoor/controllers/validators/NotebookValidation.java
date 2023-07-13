@@ -20,21 +20,41 @@ public class NotebookValidation extends Validator {
                               NotebookRepository notebookRepository) {
         this._notebook = _notebook;
         this._userRepository = _userRepository;
-        _notebookRepository = notebookRepository;
+        this._notebookRepository = notebookRepository;
     }
 
     public void validateToInsert() {
         validateUser();
-        validateNameForUser();
+        validateNameForUser(ValidationOption.INSERT);
     }
 
-    private void validateNameForUser() {
+    public void validateToDelete(String[] names) {
+        validateUser();
+        for (String name : names) {
+            _notebook.setName(name);
+            validateNameForUser(ValidationOption.DELETE);
+        }
+    }
+
+    private void validateNameForUser(ValidationOption option) {
         String name = _notebook.getName();
         String user = _notebook.getUser();
 
-        if (_notebookRepository.existsByNameAndUser(name, user)) {
-            throw new FieldAlreadyExistsException("notebook.name - The name is already in use: " + name);
+        switch (option) {
+            case INSERT:
+                if (_notebookRepository.existsByNameAndUser(name, user)) {
+                    throw new FieldAlreadyExistsException("The field 'Name' is already in use: " + name);
+                }
+                break;
+            case DELETE:
+                if (! _notebookRepository.existsByNameAndUser(name, user)) {
+                    throw new NotFoundException("Impossible to delete the Notebook. The Name '" + name + "' does not exist");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid validation option: " + option);
         }
+
     }
 
     private void validateUser() {
@@ -54,15 +74,11 @@ public class NotebookValidation extends Validator {
             // 24-character hexadecimal string, which is the standard format for MongoDB ObjectIds.
             throw new BadRequestException("The provided ID is not a valid MongoDB ObjectId");
         }
-        /*try {
-            if (id == null) {
-                throw new BadRequestException("notebook.user must not be null");
-            }
-            if (! isValidObjectId(new ObjectId(id))) {
-                throw new BadRequestException("notebook.user must be a valid Mongodb ObjectId");
-            }
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("notebook.user must be a valid Mongodb ObjectId");
-        }*/
+    }
+    private enum ValidationOption {
+        INSERT,
+        DELETE
     }
 }
+
+

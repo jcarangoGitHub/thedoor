@@ -36,4 +36,11 @@ public class NotebookMongoService implements NotebookService {
             throw new ServerException(e.getMessage());
         }
     }
+
+    @Override
+    public void deleteNotebooksByNameAndUser(String[] names, String user) {
+        for (String name : names) {
+            notebookRepository.deleteAllByNameAndUser(name, user);
+        }
+    }
 }
