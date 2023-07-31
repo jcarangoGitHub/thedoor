@@ -44,6 +44,7 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
         } else if (e instanceof InsufficientAuthenticationException) {
             String msg = "You need to authenticate again. Perhaps your session expired";
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, msg);
+            throw new UnauthorizedException(msg);
         } else if (e.getCause() instanceof UnauthorizedException) {
             httpServletResponse.setHeader("msg", e.getMessage());
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());

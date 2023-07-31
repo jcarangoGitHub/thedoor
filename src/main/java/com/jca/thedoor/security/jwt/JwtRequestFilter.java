@@ -1,6 +1,7 @@
 package com.jca.thedoor.security.jwt;
 
 import com.jca.thedoor.exception.ServerException;
+import com.jca.thedoor.exception.UnauthorizedException;
 import com.jca.thedoor.security.service.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Error user authentication: {}", e.getMessage());
                 throw new ServerException("Error user authentication: \\n" + e.getMessage());
             }
@@ -84,7 +85,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
      */
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-        System.out.println(headerAuth);
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith(BEARER))
             return headerAuth.substring(BEARER.length());
 

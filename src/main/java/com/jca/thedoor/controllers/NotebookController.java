@@ -2,7 +2,6 @@ package com.jca.thedoor.controllers;
 
 import com.jca.thedoor.controllers.validators.NotebookValidation;
 import com.jca.thedoor.entity.mongodb.Notebook;
-import com.jca.thedoor.exception.ServerException;
 import com.jca.thedoor.payload.DeleteNotebooksRequest;
 import com.jca.thedoor.repository.mongodb.NotebookRepository;
 import com.jca.thedoor.repository.mongodb.UserRepository;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notebook")
@@ -39,6 +39,13 @@ public class NotebookController {
         idUser = idUser.replace("\"", "");
         NotebookValidation.validateId(idUser);
         return _notebookMongoService.findAllNotebooksByUser(idUser);
+    }
+
+    @PostMapping("/findByName")
+    public ResponseEntity<Notebook> findByUserAndName(@RequestBody Map<String, String> requestBody) {
+        NotebookValidation validation =  new NotebookValidation(_userRepository);
+        validation.validateToFindByUserAndName(requestBody);
+        return _notebookMongoService.findNotebookByUserAndName(requestBody.get("user"), requestBody.get("name"));
     }
 
     @DeleteMapping("/notebook")

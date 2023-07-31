@@ -48,6 +48,10 @@ public class Notebook {
         this.id = _id.toString();
     }
 
+    public void assignStringId() {
+        this.setId(this.get_id().toString());
+    }
+
     public ObjectId get_id() {
         return _id;
     }

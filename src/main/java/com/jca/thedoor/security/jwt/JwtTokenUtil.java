@@ -71,6 +71,9 @@ public class JwtTokenUtil {
         } catch (IllegalArgumentException e) {
             log.error("JWT claims string is empty: {}", e.getMessage());
             throw new BadRequestException("JWT claims string is empty: \\n" + e.getMessage());
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException("User unauthorized: \\n" + e.getMessage());
+
         } catch (Exception e) {
             log.error("Exception: {}", e.getMessage());
             throw new ServerException("Exception: \\n" + e.getMessage());

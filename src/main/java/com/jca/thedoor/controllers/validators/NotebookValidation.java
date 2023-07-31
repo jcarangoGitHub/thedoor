@@ -8,6 +8,9 @@ import com.jca.thedoor.repository.mongodb.NotebookRepository;
 import com.jca.thedoor.repository.mongodb.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
+
+import java.util.Map;
 
 public class NotebookValidation extends Validator {
 
@@ -16,23 +19,40 @@ public class NotebookValidation extends Validator {
     private NotebookRepository _notebookRepository;
 
     @Autowired
-    public NotebookValidation(Notebook _notebook, UserRepository _userRepository,
+    public NotebookValidation(Notebook notebook, UserRepository userRepository,
                               NotebookRepository notebookRepository) {
-        this._notebook = _notebook;
-        this._userRepository = _userRepository;
+        this._notebook = notebook;
+        this._userRepository = userRepository;
         this._notebookRepository = notebookRepository;
     }
 
+    public NotebookValidation(UserRepository _userRepository) {
+        this._notebook = new Notebook();
+        this._userRepository = _userRepository;
+    }
+
     public void validateToInsert() {
-        validateUser();
+        validateUser(_userRepository, _notebook.getUser());
         validateNameForUser(ValidationOption.INSERT);
     }
 
     public void validateToDelete(String[] names) {
-        validateUser();
+        validateUser(_userRepository, _notebook.getUser());
         for (String name : names) {
             _notebook.setName(name);
             validateNameForUser(ValidationOption.DELETE);
+        }
+    }
+
+    public void validateToFindByUserAndName(Map<String, String> requestBody) {
+        if (requestBody.size() != 2) {
+           throw new BadRequestException("Invalid parameters. Two parameters are required");
+        }
+        _notebook.setUser(requestBody.get("user"));
+        validateUser(_userRepository, _notebook.getUser());
+        String name = requestBody.get("name");
+        if (! StringUtils.hasLength(name)) {
+            throw new BadRequestException("name must not be null or empty");
         }
     }
 
@@ -43,12 +63,13 @@ public class NotebookValidation extends Validator {
         switch (option) {
             case INSERT:
                 if (_notebookRepository.existsByNameAndUser(name, user)) {
-                    throw new FieldAlreadyExistsException("The field 'Name' is already in use: " + name);
+                    throw new FieldAlreadyExistsException("The field 'Name' is already in use for the current user: " + name);
                 }
                 break;
             case DELETE:
                 if (! _notebookRepository.existsByNameAndUser(name, user)) {
-                    throw new NotFoundException("Impossible to delete the Notebook. The Name '" + name + "' does not exist");
+                    throw new NotFoundException("Unable to delete the Notebook. The Name '" + name +
+                            "' does not exist for the current user");
                 }
                 break;
             default:
@@ -57,24 +78,15 @@ public class NotebookValidation extends Validator {
 
     }
 
-    private void validateUser() {
+    /*private void validateUser() {
         String userId = _notebook.getUser();
         validateId(userId);
 
         if (!_userRepository.existsById(userId)) {
             throw new NotFoundException("notebook.user - user not found");
         }
-    }
+    }*/
 
-    public static void validateId(String id) {
-        if (id == null) {
-            throw new BadRequestException("ID must not be null");
-        }
-        if (!id.matches("^[0-9a-fA-F]{24}$")) { // The regular expression assumes that the ObjectId is a
-            // 24-character hexadecimal string, which is the standard format for MongoDB ObjectIds.
-            throw new BadRequestException("The provided ID is not a valid MongoDB ObjectId");
-        }
-    }
     private enum ValidationOption {
         INSERT,
         DELETE
