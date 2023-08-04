@@ -24,9 +24,9 @@ public class CoworkerValidation extends Validator {
 
     public void validateToInsert() {
         String coworkerUser = _coworker.getUser();
-        String notebook = _coworker.getNotebook();
+        // String notebook = _coworker.getNotebook();
         validateUser(_userRepository, coworkerUser);
-        validateNotebook(coworkerUser, notebook);
+        // validateNotebook(coworkerUser, notebook);
     }
 
     private void validateNotebook(String coworkerUser, String notebook) {

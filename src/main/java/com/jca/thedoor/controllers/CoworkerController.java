@@ -2,17 +2,17 @@ package com.jca.thedoor.controllers;
 
 import com.jca.thedoor.controllers.validators.CoworkerValidation;
 import com.jca.thedoor.entity.mongodb.Coworker;
+import com.jca.thedoor.entity.mongodb.Notebook;
+import com.jca.thedoor.payload.DeleteCoworkersRequest;
 import com.jca.thedoor.repository.mongodb.CoworkerRepository;
 import com.jca.thedoor.repository.mongodb.NotebookRepository;
 import com.jca.thedoor.repository.mongodb.UserRepository;
 import com.jca.thedoor.service.impl.CoworkerMongoService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/coworker")
@@ -38,5 +38,16 @@ public class CoworkerController {
                 _coworkerRepository, _notebookRepository);
         validation.validateToInsert();
         return _coworkerMongoService.createCoworker(coworker);
+    }
+
+    @PostMapping("/findAll")
+    public ResponseEntity<List<Coworker>> findByGroup(@Valid @RequestBody Notebook notebook) {
+        return _coworkerMongoService.findAllCoworkersByGroup(notebook);
+    }
+
+    @DeleteMapping("coworker")
+    public ResponseEntity<Integer> deleteByNamesAndUserAndGroup(@Valid @RequestBody DeleteCoworkersRequest request) {
+        _coworkerMongoService.deleteAllByNameAndUserAndGroup(request.getCoworkers(), request.getUser(), request.getGroup());
+        return ResponseEntity.ok(request.getCoworkers().length);
     }
 }

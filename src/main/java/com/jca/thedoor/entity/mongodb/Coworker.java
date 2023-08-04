@@ -1,6 +1,7 @@
 package com.jca.thedoor.entity.mongodb;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -9,6 +10,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 @Document("coworkers")
+@CompoundIndex(name = "user_group_name_index", def = "{'user': 1, 'group': 1, 'name': 1}", unique = true)
+@CompoundIndex(name = "user_group_alias_index", def = "{'user': 1, 'group': 1, 'alias': 1}", unique = true)
+@CompoundIndex(name = "user_group_email_index", def = "{'user': 1, 'group': 1, 'email': 1}", unique = true)
+@CompoundIndex(name = "user_group_cellPhoneNumber_index", def = "{'user': 1, 'group': 1, 'cellPhoneNumber': 1}", unique = true)
 public class Coworker {
     @MongoId
     private ObjectId _id;
@@ -20,11 +25,6 @@ public class Coworker {
 
     @NotNull
     @NotBlank
-    private String notebook;
-
-    @NotNull
-    @NotBlank
-    @Indexed(unique = true)
     private String name;
 
     private String alias;
@@ -35,14 +35,12 @@ public class Coworker {
 
     @NotNull
     @NotBlank
-    @Indexed(unique = true)
     private String email;
 
     @NotNull
     @NotBlank
     private String country;
 
-    @Indexed(unique = true)
     private String cellPhoneNumber;
 
     private String group;
@@ -52,6 +50,10 @@ public class Coworker {
 
     private Coworker() {
         super();
+    }
+
+    public void assignStringId() {
+        this.setId(this.get_id().toString());
     }
 
     // Getters and Setters
@@ -78,14 +80,6 @@ public class Coworker {
 
     public void setUser(String user) {
         this.user = user;
-    }
-
-    public String getNotebook() {
-        return notebook;
-    }
-
-    public void setNotebook(String notebook) {
-        this.notebook = notebook;
     }
 
     public String getName() {
@@ -171,11 +165,6 @@ public class Coworker {
 
         public Builder user(String user) {
             coworker.user = user;
-            return this;
-        }
-
-        public Builder notebook(String notebook) {
-            coworker.notebook = notebook;
             return this;
         }
 

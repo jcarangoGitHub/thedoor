@@ -1,7 +1,7 @@
 package com.jca.thedoor.service.impl;
 
 import com.jca.thedoor.entity.mongodb.Coworker;
-import com.jca.thedoor.exception.BadRequestException;
+import com.jca.thedoor.entity.mongodb.Notebook;
 import com.jca.thedoor.exception.FieldAlreadyExistsException;
 import com.jca.thedoor.exception.ServerException;
 import com.jca.thedoor.repository.mongodb.CoworkerRepository;
@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CoworkerMongoService implements CoworkerService {
@@ -27,7 +29,27 @@ public class CoworkerMongoService implements CoworkerService {
         }
     }
 
-    public static String extractDuplicateExceptionMessage(String exceptionMessage) {
+    @Override
+    public ResponseEntity<List<Coworker>> findAllCoworkersByGroup(Notebook notebook) {
+        try {
+            List<Coworker> results = coworkerRepository.findByUserAndGroup(notebook.getUser(), notebook.getGroup());
+            for (Coworker coworker: results) {
+                coworker.assignStringId();
+            }
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteAllByNameAndUserAndGroup(String names[], String user, String group) {
+        for (String name: names) {
+            coworkerRepository.deleteAllByNameAndUserAndGroup(name, user, group);
+        }
+    }
+
+    private static String extractDuplicateExceptionMessage(String exceptionMessage) {
         String startText = "index: ";
         int startIndex = exceptionMessage.indexOf(startText);
 
@@ -41,5 +63,6 @@ public class CoworkerMongoService implements CoworkerService {
 
         return null; // Return null if the desired part is not found in the exception message.
     }
+
 
 }

@@ -104,6 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.requiresChannel().antMatchers("/api/notebook/findAllByUser").requiresSecure();
         http.requiresChannel().antMatchers("/api/notebook/findByUserAndName").requiresSecure();
         http.requiresChannel().antMatchers("/api/coworker/coworker").requiresSecure();
+        http.requiresChannel().antMatchers("/api/coworker/findAll").requiresSecure();
 
         http
             .cors().and()
@@ -121,6 +122,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/notebook/findAllByUser").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/notebook/findByUserAndName").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/coworker/coworker").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/coworker/findAll").hasAnyRole("SUPER", "USER")
 
                 //.antMatchers("/api/user/delete").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
