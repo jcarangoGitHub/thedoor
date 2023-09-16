@@ -12,19 +12,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -104,7 +99,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.requiresChannel().antMatchers("/api/notebook/findAllByUser").requiresSecure();
         http.requiresChannel().antMatchers("/api/notebook/findByUserAndName").requiresSecure();
         http.requiresChannel().antMatchers("/api/coworker/coworker").requiresSecure();
+        http.requiresChannel().antMatchers("/api/coworker/findById").requiresSecure();
         http.requiresChannel().antMatchers("/api/coworker/findAll").requiresSecure();
+        http.requiresChannel().antMatchers("/api/hashtag/hashtag").requiresSecure();
+        http.requiresChannel().antMatchers("/api/hashtag/findAll").requiresSecure();
+        http.requiresChannel().antMatchers("/api/thought/thought").requiresSecure();
+        http.requiresChannel().antMatchers("/api/thought/findByNotebook").requiresSecure();
 
         http
             .cors().and()
@@ -122,7 +122,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/notebook/findAllByUser").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/notebook/findByUserAndName").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/coworker/coworker").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/coworker/findById").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/coworker/findAll").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/hashtag/hashtag").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/hashtag/findAll").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/thought/thought").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/thought/findByNotebook").hasAnyRole("SUPER", "USER")
+
 
                 //.antMatchers("/api/user/delete").permitAll()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()

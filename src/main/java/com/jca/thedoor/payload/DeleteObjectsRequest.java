@@ -1,16 +1,16 @@
 package com.jca.thedoor.payload;
 
-public class DeleteCoworkersRequest {
-    private String[] coworkers;
+public class DeleteObjectsRequest {
+    private String[] objects;
     private String user;
     private String group;
 
-    public String[] getCoworkers() {
-        return coworkers;
+    public String[] getObjects() {
+        return objects;
     }
 
-    public void setCoworkers(String[] coworkers) {
-        this.coworkers = coworkers;
+    public void setObjects(String[] objects) {
+        this.objects = objects;
     }
 
     public String getUser() {

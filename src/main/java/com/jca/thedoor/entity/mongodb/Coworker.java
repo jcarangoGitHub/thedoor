@@ -56,6 +56,18 @@ public class Coworker {
         this.setId(this.get_id().toString());
     }
 
+    public void summarizeCoworker() {
+        this._id = null;
+        this.user = null;
+        this.name = null;
+        this.role = null;
+        this.email = null;
+        this.country = null;
+        this.cellPhoneNumber = null;
+        this.group = null;
+        this.creationDate = null;
+    }
+
     // Getters and Setters
 
     public ObjectId get_id() {

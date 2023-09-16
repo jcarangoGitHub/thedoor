@@ -1,18 +1,21 @@
 package com.jca.thedoor.entity.mongodb;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 @Document("thoughts")
-public class Thought {
-    @MongoId
+@CompoundIndex(name = "user_notebook_title_index", def = "{'user': 1, 'notebook': 1, 'title': 1}", unique = true)
+public class Thought extends MongoModel{
+    /*@MongoId
     private ObjectId _id;
-    private String id;
+    private String id;*/
 
     @NotNull
     @NotBlank
@@ -24,18 +27,37 @@ public class Thought {
 
     @NotNull
     @NotBlank
-    private String type;
+    private String title;
 
     @NotNull
     @NotBlank
-    private String description;
+    private String type;
 
     @NotNull
     @NotBlank
     private String status;
 
+    private String link;
+
+    private String linkCode;
+
+    private String scenario;
+
+    private List<ObjectSummarized> hashtags;
+
+    private String description;
+
+    private String solution;
+
+    private List<ObjectSummarized> coworkers;
+
+    private List<PullRequest> pullsRequest;
+
+    private List <Date> merges;
+
+    private List <Date> deploys;
+
     @NotNull
-    @NotBlank
     private Date creationDate;
 
     private Date startDate;
@@ -45,9 +67,11 @@ public class Thought {
         super();
     }
 
+
+
     // Getters and Setters
 
-    public ObjectId get_id() {
+    /*public ObjectId get_id() {
         return _id;
     }
 
@@ -61,7 +85,7 @@ public class Thought {
 
     public void setId(String id) {
         this.id = id;
-    }
+    }*/
 
     public String getUser() {
         return user;
@@ -71,14 +95,20 @@ public class Thought {
         this.user = user;
     }
 
-
-
     public String getNotebook() {
         return notebook;
     }
 
     public void setNotebook(String notebook) {
         this.notebook = notebook;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getType() {
@@ -103,6 +133,78 @@ public class Thought {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public String getLinkCode() {
+        return linkCode;
+    }
+
+    public void setLinkCode(String linkCode) {
+        this.linkCode = linkCode;
+    }
+
+    public String getScenario() {
+        return scenario;
+    }
+
+    public void setScenario(String scenario) {
+        this.scenario = scenario;
+    }
+
+    public List<ObjectSummarized> getHashtags() {
+        return hashtags;
+    }
+
+    public void setHashtags(List<ObjectSummarized> hashtags) {
+        this.hashtags = hashtags;
+    }
+
+    public String getSolution() {
+        return solution;
+    }
+
+    public void setSolution(String solution) {
+        this.solution = solution;
+    }
+
+    public List<ObjectSummarized> getCoworkers() {
+        return coworkers;
+    }
+
+    public void setCoworkers(List<ObjectSummarized> coworkers) {
+        this.coworkers = coworkers;
+    }
+
+    public List<PullRequest> getPullsRequest() {
+        return pullsRequest;
+    }
+
+    public void setPullsRequest(List<PullRequest> pullsRequest) {
+        this.pullsRequest = pullsRequest;
+    }
+
+    public List<Date> getMerges() {
+        return merges;
+    }
+
+    public void setMerges(List<Date> merges) {
+        this.merges = merges;
+    }
+
+    public List<Date> getDeploys() {
+        return deploys;
+    }
+
+    public void setDeploys(List<Date> deploys) {
+        this.deploys = deploys;
     }
 
     public Date getCreationDate() {
@@ -137,12 +239,12 @@ public class Thought {
         }
 
         public Builder id(ObjectId _id) {
-            thought._id = _id;
+            // thought._id = _id;
             return this;
         }
 
         public Builder id(String id) {
-            thought.id = id;
+            // thought.id = id;
             return this;
         }
 
@@ -153,6 +255,11 @@ public class Thought {
 
         public Builder notebook(String notebook) {
             thought.notebook = notebook;
+            return this;
+        }
+
+        public Builder title(String title) {
+            thought.title = title;
             return this;
         }
 
