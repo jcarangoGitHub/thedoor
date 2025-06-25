@@ -62,6 +62,19 @@ public class CoworkerMongoService implements CoworkerService {
     }
 
     @Override
+    public ResponseEntity<List<Coworker>> findReviewersByGroup(Notebook notebook) {
+        try {
+            List<Coworker> results = coworkerRepository.findByUserAndGroupAndReviewerIsTrue(notebook.getUser(), notebook.getGroup());
+            for (Coworker coworker: results) {
+                coworker.assignStringId();
+            }
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage());
+        }
+    }
+
+    @Override
     public void deleteAllByNameAndUserAndGroup(String names[], String user, String group) {
         for (String name: names) {
             coworkerRepository.deleteAllByNameAndUserAndGroup(name, user, group);

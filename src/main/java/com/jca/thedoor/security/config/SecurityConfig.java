@@ -101,6 +101,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.requiresChannel().antMatchers("/api/coworker/coworker").requiresSecure();
         http.requiresChannel().antMatchers("/api/coworker/findById").requiresSecure();
         http.requiresChannel().antMatchers("/api/coworker/findAll").requiresSecure();
+        http.requiresChannel().antMatchers("/api/coworker/findReviewers").requiresSecure();
         http.requiresChannel().antMatchers("/api/hashtag/hashtag").requiresSecure();
         http.requiresChannel().antMatchers("/api/hashtag/findAll").requiresSecure();
         http.requiresChannel().antMatchers("/api/thought/thought").requiresSecure();
@@ -124,6 +125,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/coworker/coworker").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/coworker/findById").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/coworker/findAll").hasAnyRole("SUPER", "USER")
+                .antMatchers("/api/coworker/findReviewers").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/hashtag/hashtag").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/hashtag/findAll").hasAnyRole("SUPER", "USER")
                 .antMatchers("/api/thought/thought").hasAnyRole("SUPER", "USER")

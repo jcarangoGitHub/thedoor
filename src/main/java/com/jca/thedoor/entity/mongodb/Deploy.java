@@ -1,17 +1,16 @@
 package com.jca.thedoor.entity.mongodb;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Document("pulls_request")
-public class PullRequest {
+public class Deploy {
     private String id;
-    private String link;
+    @NotNull
+    private String enviroment;
     @NotNull
     private Date date;
 
+    /** GETS AND SETS **/
     public String getId() {
         return id;
     }
@@ -20,12 +19,12 @@ public class PullRequest {
         this.id = id;
     }
 
-    public String getLink() {
-        return link;
+    public String getEnviroment() {
+        return enviroment;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setEnviroment(String enviroment) {
+        this.enviroment = enviroment;
     }
 
     public Date getDate() {

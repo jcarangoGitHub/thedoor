@@ -53,9 +53,9 @@ public class Thought extends MongoModel{
 
     private List<PullRequest> pullsRequest;
 
-    private List <Date> merges;
+    private List <Merge> merges;
 
-    private List <Date> deploys;
+    private List <Deploy> deploys;
 
     @NotNull
     private Date creationDate;
@@ -191,19 +191,19 @@ public class Thought extends MongoModel{
         this.pullsRequest = pullsRequest;
     }
 
-    public List<Date> getMerges() {
+    public List<Merge> getMerges() {
         return merges;
     }
 
-    public void setMerges(List<Date> merges) {
+    public void setMerges(List<Merge> merges) {
         this.merges = merges;
     }
 
-    public List<Date> getDeploys() {
+    public List<Deploy> getDeploys() {
         return deploys;
     }
 
-    public void setDeploys(List<Date> deploys) {
+    public void setDeploys(List<Deploy> deploys) {
         this.deploys = deploys;
     }
 

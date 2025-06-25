@@ -14,5 +14,7 @@ public interface CoworkerService {
 
     ResponseEntity<List<Coworker>> findAllCoworkersByGroup(Notebook notebook);
 
+    ResponseEntity<List<Coworker>> findReviewersByGroup(Notebook notebook);
+
     void deleteAllByNameAndUserAndGroup(String names[], String user, String group);
 }

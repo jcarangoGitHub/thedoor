@@ -2,7 +2,6 @@ package com.jca.thedoor.entity.mongodb;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -33,6 +32,8 @@ public class Coworker {
     @NotBlank
     private String role;
 
+    private Boolean reviewer;
+
     @NotNull
     @NotBlank
     private String email;
@@ -61,6 +62,7 @@ public class Coworker {
         this.user = null;
         this.name = null;
         this.role = null;
+        this.reviewer = false;
         this.email = null;
         this.country = null;
         this.cellPhoneNumber = null;
@@ -116,6 +118,14 @@ public class Coworker {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Boolean getReviewer() {
+        return reviewer;
+    }
+
+    public void setReviewer(Boolean reviewer) {
+        this.reviewer = reviewer;
     }
 
     public String getEmail() {

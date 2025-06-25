@@ -1,5 +1,6 @@
 package com.jca.thedoor.controllers;
 
+import com.jca.thedoor.entity.mongodb.Coworker;
 import com.jca.thedoor.entity.mongodb.Thought;
 import com.jca.thedoor.service.impl.ThoughtMongoService;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,12 @@ public class ThoughtController {
     @PostMapping("/thought")
     public ResponseEntity<Thought> saveThought(@Valid @RequestBody Thought thought) {
         return _thoughtMongoService.createThought(thought);
+    }
+
+    @PostMapping("/findById")
+    public ResponseEntity<Thought> findById(@Valid @RequestBody String thoughtId) {
+        thoughtId = thoughtId.replace("\"", "");
+        return _thoughtMongoService.findById(thoughtId);
     }
 
     @PostMapping("/findByNotebook")

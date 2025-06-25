@@ -1,5 +1,6 @@
 package com.jca.thedoor.service;
 
+import com.jca.thedoor.entity.mongodb.Coworker;
 import com.jca.thedoor.entity.mongodb.Thought;
 import org.springframework.http.ResponseEntity;
 
@@ -7,6 +8,8 @@ import java.util.List;
 
 public interface ThoughtService {
     ResponseEntity<Thought> createThought(Thought thought);
+
+    ResponseEntity<Thought> findById(String id);
 
     ResponseEntity<List<Thought>> findThoughtsByNotebook(String user, String notebook);
     static String extractDuplicateExceptionMessage(String exceptionMessage) {

@@ -51,6 +51,11 @@ public class CoworkerController {
         return _coworkerMongoService.findAllCoworkersByGroup(notebook);
     }
 
+    @PostMapping("/findReviewers")
+    public ResponseEntity<List<Coworker>> findReviewersByGroup(@Valid @RequestBody Notebook notebook) {
+        return _coworkerMongoService.findReviewersByGroup(notebook);
+    }
+
     @DeleteMapping("coworker")
     public ResponseEntity<Integer> deleteByNamesAndUserAndGroup(@Valid @RequestBody DeleteObjectsRequest request) {
         _coworkerMongoService.deleteAllByNameAndUserAndGroup(request.getObjects(), request.getUser(), request.getGroup());

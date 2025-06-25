@@ -86,11 +86,7 @@ public class Hashtag {
     }
 
     public void setName(String name) {
-        if (name != null && !name.isEmpty()) {
-            this.name = (name.charAt(0) == '#') ? name : "#" + name;
-        } else {
-            this.name = name;
-        }
+        this.name = name;
     }
 
     public String getDescription() {
