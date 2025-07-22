@@ -12,7 +12,7 @@ import java.util.List;
 
 @Document("thoughts")
 @CompoundIndex(name = "user_notebook_title_index", def = "{'user': 1, 'notebook': 1, 'title': 1}", unique = true)
-public class Thought extends MongoModel{
+public class Thought extends MongoModel {
     /*@MongoId
     private ObjectId _id;
     private String id;*/

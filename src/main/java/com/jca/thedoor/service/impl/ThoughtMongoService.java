@@ -23,7 +23,7 @@ import java.util.Optional;
 public class ThoughtMongoService implements ThoughtService {
 
     @Autowired
-    private ThoughtRepository _thoughtRepository;
+    private ThoughtRepository _thoughtRepository;//TODO quitar _ prefijo
 
     @Override
     public ResponseEntity<Thought> createThought(Thought thought) {

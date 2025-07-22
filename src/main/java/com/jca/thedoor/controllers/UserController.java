@@ -1,12 +1,17 @@
 package com.jca.thedoor.controllers;
 
+import com.jca.thedoor.controllers.validators.RoleValidation;
 import com.jca.thedoor.controllers.validators.UserValidation;
+import com.jca.thedoor.entity.mongodb.Authentication;
 import com.jca.thedoor.entity.mongodb.User;
 import com.jca.thedoor.exception.BadRequestException;
 import com.jca.thedoor.exception.FieldAlreadyExistsException;
 import com.jca.thedoor.exception.NotFoundException;
+import com.jca.thedoor.exception.ServerException;
+import com.jca.thedoor.repository.mongodb.AuthenticationRepository;
 import com.jca.thedoor.repository.mongodb.RoleRepository;
 import com.jca.thedoor.repository.mongodb.UserRepository;
+import com.jca.thedoor.requests.UserRegisterRequest;
 import com.jca.thedoor.util.MessageUtil;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.ConstraintViolationException;
 import javax.validation.UnexpectedTypeException;
 import javax.validation.Valid;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/user")
@@ -25,25 +31,38 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+
+    private final AuthenticationRepository authenticationRepository;
     private final PasswordEncoder encoder;
 
     public UserController(UserRepository userRepository, RoleRepository roleRepository,
+                          AuthenticationRepository authenticationRepository,
                           PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.authenticationRepository = authenticationRepository;
         this.encoder = encoder;
     }
 
     @PutMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody User user) {
-        UserValidation validation = new UserValidation(user, roleRepository, userRepository);
-        validation.validateToInsert();
-
-        // Create new user //TODO apply authentication mongodb document
-        // user.setPassword(encoder.encode(user.getPassword()));
+    //@PreAuthorize("hasRole('ROLE_SUPER')")
+    public ResponseEntity<User> register(@Valid @RequestBody UserRegisterRequest userRequest) {
+        RoleValidation roleValidation = new RoleValidation(roleRepository);
         try {
-            User created = userRepository.save(user);
-            return ResponseEntity.ok(created);
+            roleValidation.validateListOfRoleExists(userRequest.getIdRoles());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+        try {
+            User user = getUserFromRequest(userRequest);
+            User userCreated = userRepository.save(user);
+            if (userCreated != null && userCreated.get_id() != null) {
+                Authentication authentication = getAuthenticationFromRequestAndUser(userRequest,
+                        userCreated.get_id().toHexString());
+                authenticationRepository.save(authentication);
+                return ResponseEntity.ok(userCreated);
+            }
+            throw new ServerException("Unexpected exception. user not created");// TODO displaykey
         } catch (DuplicateKeyException e) {
             throw new FieldAlreadyExistsException(
                     MessageUtil.getFieldFromDuplicateKeyExceptionMessage(e.getMessage()));
@@ -51,7 +70,56 @@ public class UserController {
             throw new BadRequestException(e.getMessage());
         } catch (UnexpectedTypeException e) {
             throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage());
         }
+    }
+
+    @PutMapping("/registeradmin")
+    public ResponseEntity<User> registerAdmin(@Valid @RequestBody UserRegisterRequest userRequest) {
+        String userAdmin = "juancamiloarango@gmail.com";//TODO displaykey
+        if (!userRequest.getUsername().equals(userAdmin)) {
+            throw new NotFoundException("username is not admin"); // TODO displaykey
+        }
+        RoleValidation roleValidation = new RoleValidation(roleRepository);
+        try {
+            roleValidation.validateListOfRoleExists(userRequest.getIdRoles());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        }
+        try {
+            User user = getUserFromRequest(userRequest);
+            User userCreated = userRepository.save(user);
+            if (userCreated != null && userCreated.get_id() != null) {
+                Authentication authentication = getAuthenticationFromRequestAndUser(userRequest,
+                        userCreated.get_id().toHexString());
+                authenticationRepository.save(authentication);
+                return ResponseEntity.ok(userCreated);
+            }
+            throw new ServerException("Unexpected exception. user not created");// TODO displaykey
+        } catch (DuplicateKeyException e) {
+            throw new FieldAlreadyExistsException(
+                    MessageUtil.getFieldFromDuplicateKeyExceptionMessage(e.getMessage()));
+        } catch (ConstraintViolationException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (UnexpectedTypeException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage());
+        }
+    }
+
+    private Authentication getAuthenticationFromRequestAndUser(UserRegisterRequest userRequest, String idUser) {
+        return new Authentication(userRequest.getUsername(),
+                encoder.encode(userRequest.getPassword()), idUser,
+                Arrays.stream(userRequest.getIdRoles()).toList());
+    }
+
+    private static User getUserFromRequest(UserRegisterRequest userRequest) {
+        User user = new User(null, userRequest.getFullName(), userRequest.getEmail(),
+                userRequest.getCellPhoneNumber(), userRequest.getCodCountry(),
+                userRequest.getTokenExchange());
+        return user;
     }
 
     // @CrossOrigin(origins = "http://localhost:3000")

@@ -1,29 +1,22 @@
 package com.jca.thedoor.entity.mongodb;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Document
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Document("roles")
 public class Role {
-    @Id
-    private String id;
-
+    private @MongoId ObjectId _id;
+    @NotNull
+    @NotBlank
     private String name;
+    @NotNull
+    @NotBlank
     private String description;
-
-    public Role(String name, String description) {
-        super();
-        this.name = name;
-        this.description = description;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

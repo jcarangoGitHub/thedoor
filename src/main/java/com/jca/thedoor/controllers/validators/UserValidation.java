@@ -27,7 +27,6 @@ public class UserValidation extends Validator {
     }
 
     private void validateRoleExists() {
-        //TODO fix model authenticate
         /*_user.getRoles().forEach(role -> {
             if (! _roleRepository.existsById(role)) {
                 throw new NotFoundException("No es posible guardar el registro. Rol no existe: " + role);

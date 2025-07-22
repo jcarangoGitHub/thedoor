@@ -1,10 +1,11 @@
 package com.jca.thedoor.security.payload;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.jca.thedoor.entity.mongodb.User;
 
 public class JwtResponse {
-
+    @Schema(description = "Generated JWT token")
     private String token;
+    @Schema(description = "Authenticated user information")
     private User user;
 
     public JwtResponse() {

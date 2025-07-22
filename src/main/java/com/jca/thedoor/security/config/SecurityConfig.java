@@ -1,9 +1,13 @@
 package com.jca.thedoor.security.config;
 
+import com.jca.thedoor.constants.ApiPaths;
+import com.jca.thedoor.constants.enums.RolesEnum;
 import com.jca.thedoor.security.jwt.JwtAuthEntryPoint;
 import com.jca.thedoor.security.jwt.JwtRequestFilter;
 import com.jca.thedoor.security.service.UserDetailsServiceImpl;
+import com.jca.thedoor.util.ApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +35,7 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 @Configuration
 @EnableWebSecurity // permite a Spring aplicar esta configuracion a la configuraicon de seguridad global
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties(ApplicationProperties.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final ClearSiteDataHeaderWriter.Directive[] SOURCE =
@@ -90,50 +95,35 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Cross-Site Request Forgery CSRF
         // CORS (Cross-origin resource sharing)
         //TODO separar los links a otro archivo
-        //http.requiresChannel().antMatchers("/api/auth/login").requiresSecure();
-        http.requiresChannel().antMatchers("/api/user/findByUserName").requiresSecure();
-        http.requiresChannel().antMatchers("/api/user/update").requiresSecure();
-        http.requiresChannel().antMatchers("/api/exchanger/getCurrentRates").requiresSecure();
-        http.requiresChannel().antMatchers("/api/exchanger/getRatesLastDays").requiresSecure();
-        http.requiresChannel().antMatchers("/api/notebook/notebook").requiresSecure();
-        http.requiresChannel().antMatchers("/api/notebook/findAllByUser").requiresSecure();
-        http.requiresChannel().antMatchers("/api/notebook/findByUserAndName").requiresSecure();
-        http.requiresChannel().antMatchers("/api/coworker/coworker").requiresSecure();
-        http.requiresChannel().antMatchers("/api/coworker/findById").requiresSecure();
-        http.requiresChannel().antMatchers("/api/coworker/findAll").requiresSecure();
-        http.requiresChannel().antMatchers("/api/coworker/findReviewers").requiresSecure();
-        http.requiresChannel().antMatchers("/api/hashtag/hashtag").requiresSecure();
-        http.requiresChannel().antMatchers("/api/hashtag/findAll").requiresSecure();
-        http.requiresChannel().antMatchers("/api/thought/thought").requiresSecure();
-        http.requiresChannel().antMatchers("/api/thought/findByNotebook").requiresSecure();
+
+        for (String path : ApiPaths.SECURED_PATHS) {
+            http.requiresChannel().antMatchers(path).requiresSecure();
+        }
 
         http
             .cors().and()
             .csrf().disable()//no se tienen cookies, por eso se deshabilita
             .authorizeRequests()
-                .antMatchers("/api/auth/login").permitAll()
-                .antMatchers("/logout").permitAll()
-                .antMatchers("/login").permitAll() // we need it to logout
-                .antMatchers("/api/user/register").permitAll()
-                .antMatchers("/api/user/findByUserName").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/user/update").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/exchanger/getCurrentRates").hasAnyRole("SUPER")
-                .antMatchers("/api/exchanger/getRatesLastDays").hasAnyRole("SUPER")
-                .antMatchers("/api/notebook/notebook").hasAnyRole("SUPER")
-                .antMatchers("/api/notebook/findAllByUser").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/notebook/findByUserAndName").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/coworker/coworker").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/coworker/findById").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/coworker/findAll").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/coworker/findReviewers").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/hashtag/hashtag").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/hashtag/findAll").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/thought/thought").hasAnyRole("SUPER", "USER")
-                .antMatchers("/api/thought/findByNotebook").hasAnyRole("SUPER", "USER")
-
-
-                //.antMatchers("/api/user/delete").permitAll()
-                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+                .antMatchers(ApiPaths.LOGIN, ApiPaths.LOGOUT, ApiPaths.LOGIN_PAGE, ApiPaths.REGISTER_ADMIN).permitAll()
+                .antMatchers(ApiPaths.REGISTER_USER,
+                        ApiPaths.EXCHANGER_RATES_CURRENT,
+                        ApiPaths.EXCHANGER_RATES_LAST_DAYS,
+                        ApiPaths.NOTEBOOK)
+                .hasRole(RolesEnum.SUPER.name())
+                .antMatchers(ApiPaths.USER_FIND_BY_USERNAME,
+                        ApiPaths.USER_UPDATE,
+                        ApiPaths.NOTEBOOK_FIND_ALL_BY_USER,
+                        ApiPaths.NOTEBOOK_FIND_BY_USER_AND_NAME,
+                        ApiPaths.COWORKER,
+                        ApiPaths.COWORKER_FIND_BY_ID,
+                        ApiPaths.COWORKER_FIND_ALL,
+                        ApiPaths.COWORKER_FIND_REVIEWERS,
+                        ApiPaths.HASHTAG,
+                        ApiPaths.HASHTAG_FIND_ALL,
+                        ApiPaths.THOUGHT,
+                        ApiPaths.THOUGHT_FIND_BY_NOTEBOOK)
+                .hasAnyRole(RolesEnum.SUPER.name(), RolesEnum.USER.name())
+                .antMatchers(ApiPaths.SWAGGER_WHITELIST).permitAll()
                 .anyRequest().authenticated()
                 .and()
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)

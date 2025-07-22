@@ -2,6 +2,7 @@ package com.jca.thedoor.entity.mongodb;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
+@Document("authentications")
 public class Authentication implements UserDetails {
 
     private @MongoId ObjectId _id;
@@ -37,12 +39,22 @@ public class Authentication implements UserDetails {
 
     private Set<UserRole> userRoles;
 
+    public Authentication() {
+        super();
+    }
     public Authentication(ObjectId _id, String username, String password, String user) {
         this._id = _id;
         this.id = _id.toString();
         this.username = username;
         this.password = password;
         this.user = user;
+    }
+
+    public Authentication(String username, String password, String user, List<String> roles) {
+        this.username = username;
+        this.password = password;
+        this.user = user;
+        this.roles = roles;
     }
 
     public ObjectId get_id() {

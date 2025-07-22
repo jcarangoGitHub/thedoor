@@ -35,10 +35,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //TODO change for authentica
         Authentication authentication = authenticationRepository.findByUsername(username);
 
-        //TODO exception
         if (authentication == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }

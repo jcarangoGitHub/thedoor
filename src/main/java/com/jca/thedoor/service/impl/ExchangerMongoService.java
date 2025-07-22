@@ -127,4 +127,30 @@ public class ExchangerMongoService implements ExchangerService {
 
         return ResponseEntity.ok(response);
     }
+
+    private ResponseEntity<ExchangeRate> getStockAndSaveIt(String url, String[] params) {
+        RestTemplate restTemplate = new RestTemplate();
+        int paramsLength = params.length;
+        if (paramsLength > 0) {
+            String strCounter;
+            for (int i=0; i<paramsLength; i++) {
+                strCounter = "{"+String.valueOf(i)+"}";
+                if (url.indexOf(strCounter) != -1) {
+                    url = url.replace(strCounter, params[i]);
+                }
+            }
+        }
+        StringBuilder apiUrlBuilder = new StringBuilder(url);
+        String apiUrl = apiUrlBuilder.toString();
+        ResponseEntity<ExchangeRate> response = restTemplate.getForEntity(apiUrl, ExchangeRate.class);
+        ExchangeRate exchangeRate = response.getBody();
+        exchangeRate.setLocalDate(getGMTAdjustedByHours(exchangeRate.getTimestamp(), _colombiaGMT));
+        try {
+            ExchangeRate created = exchangerRepository.save(exchangeRate);
+            return ResponseEntity.ok(created);
+        } catch (DuplicateKeyException exception) {
+            log.warn(MessageUtil.getFieldFromDuplicateKeyExceptionMessage(exception.getMessage()));
+            return ResponseEntity.ok(exchangeRate);
+        }
+    }
 }
